@@ -58,16 +58,17 @@
             border-radius: 12px;
             margin-bottom: 3rem;
             animation: fadeInUp 0.8s 0.2s ease-out backwards;
+            border: 1px solid var(--primary-color);
         }
 
         .profile-picture-preview {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            border: 3px solid var(--primary-color);
+            border: 3px solid var(--accent-color);
             object-fit: cover;
             background-color: var(--bg-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease;
         }
         
         .profile-uploader label {
@@ -93,43 +94,27 @@
         }
 
         @media (min-width: 600px) {
-            #link-form {
-                grid-template-columns: 1fr 1fr auto;
-            }
+            #link-form { grid-template-columns: 1fr 1fr auto; }
         }
 
         .form-input {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1rem;
-            background-color: var(--card-color);
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            color: var(--text-color);
+            width: 100%; padding: 1rem; font-size: 1rem; background-color: var(--card-color);
+            border: 2px solid var(--primary-color); border-radius: 8px; color: var(--text-color);
             transition: all 0.3s ease;
         }
 
         .form-input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 15px var(--glow-color);
+            outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px var(--glow-color);
         }
 
         #submit-btn {
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 1rem 1.5rem; font-size: 1rem; font-weight: 600; background-color: var(--accent-color);
+            color: white; border: none; border-radius: 8px; cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.3s ease;
         }
 
         #submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--glow-color);
+            transform: translateY(-3px); box-shadow: 0 5px 15px var(--glow-color);
         }
 
         /* --- Link Display Grid --- */
@@ -140,71 +125,34 @@
         }
 
         .link-card {
-            background-color: var(--card-color);
-            border-radius: 12px;
-            padding: 1.5rem;
+            background-color: var(--card-color); border-radius: 12px; padding: 1.5rem;
             border: 1px solid var(--primary-color);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            /* Animation applied via JavaScript */
+            display: flex; flex-direction: column; gap: 1rem;
         }
         
         .link-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
+        .card-header { display: flex; align-items: center; gap: 1rem; }
         .card-pfp {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            border: 2px solid var(--accent-color);
+            width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
+            flex-shrink: 0; border: 2px solid var(--accent-color); background-color: var(--bg-color);
         }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: white;
-            word-break: break-word;
-        }
-
+        .card-title { font-size: 1.25rem; font-weight: 600; color: white; word-break: break-word; }
         .card-url {
-            font-size: 0.8rem;
-            word-break: break-all;
-            opacity: 0.6;
-            padding-bottom: 1rem;
+            font-size: 0.8rem; word-break: break-all; opacity: 0.6; padding-bottom: 1rem;
             border-bottom: 1px solid var(--primary-color);
         }
-
         .card-join-btn {
-            margin-top: auto; /* Pushes button to the bottom */
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background 0.3s ease, transform 0.2s ease;
+            margin-top: auto; display: block; text-align: center; text-decoration: none;
+            background: var(--accent-color); color: white; padding: 0.75rem; border-radius: 8px;
+            font-weight: 600; transition: background 0.3s ease, transform 0.2s ease;
         }
+        .card-join-btn:hover { background: #ff6384; transform: scale(1.05); }
 
-        .card-join-btn:hover {
-            background: #ff6384; /* Lighter accent */
-            transform: scale(1.05);
-        }
-
-        /* --- Keyframe Animations --- */
+        /* --- Animations --- */
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
@@ -222,7 +170,7 @@
                 <img src="" alt="Your Profile Picture" id="pfp-preview" class="profile-picture-preview">
                 <label for="pfp-input">Set Your Picture</label>
                 <input type="file" id="pfp-input" accept="image/*">
-                <p style="font-size: 0.8rem; opacity: 0.7;">Your picture is saved in your browser, not uploaded.</p>
+                <p style="font-size: 0.8rem; opacity: 0.7;">Your picture is saved in your browser for your posts.</p>
             </div>
 
             <form id="link-form">
@@ -231,14 +179,12 @@
                 <button type="submit" id="submit-btn">Share Link</button>
             </form>
 
-            <div id="link-container">
-                <!-- Links will be dynamically inserted here -->
-            </div>
+            <div id="link-container"></div>
         </main>
     </div>
 
     <script>
-        // --- DOM Element References ---
+        // --- DOM Elements ---
         const pfpInput = document.getElementById('pfp-input');
         const pfpPreview = document.getElementById('pfp-preview');
         const linkForm = document.getElementById('link-form');
@@ -246,22 +192,16 @@
         const linkUrlInput = document.getElementById('link-url-input');
         const linkContainer = document.getElementById('link-container');
         
-        // --- Profile Picture Logic ---
-        
+        // --- Constants ---
         const PFP_STORAGE_KEY = 'userProfilePicture';
-        const DEFAULT_PFP = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5ZGFkYSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSIzIi8+PHBhdGggZD0iTTEyIDEyYzQtMyA4IDAgOCAwIi8+PHBhdGggZD0iTTQgMTJzNCAzIDggMCIvPjxwYXRoIGQ9Ik0xOCAyMWEyIDIgMCAwIDAgMi0yYzAtMy41LTMuNTgtNC02LTRzLTYgLjUtNiA0YTIgMiAwIDAgMCAyIDIiLz48L3N2Zz4='; // A simple fallback SVG icon
+        const DEFAULT_PFP = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5ZGFkYSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSIzIi8+PHBhdGggZD0iTTEyIDEyYzQtMyA4IDAgOCAwIi8+PHBhdGggZD0iTTQgMTJzNCAzIDggMCIvPjxwYXRoIGQ9Ik0xOCAyMWEyIDIgMCAwIDAgMi0yYzAtMy41LTMuNTgtNC02LTRzLTYgLjUtNiA0YTIgMiAwIDAgMCAyIDIiLz48L3N2Zz4=';
 
-        /**
-         * Loads the profile picture from localStorage and displays it.
-         */
+        // --- Profile Picture Logic ---
         const loadPfp = () => {
             const savedPfp = localStorage.getItem(PFP_STORAGE_KEY);
             pfpPreview.src = savedPfp || DEFAULT_PFP;
         };
 
-        /**
-         * Handles the selection of a new profile picture file.
-         */
         const handlePfpChange = (event) => {
             const file = event.target.files[0];
             if (!file) return;
@@ -271,8 +211,6 @@
                 const base64Image = e.target.result;
                 localStorage.setItem(PFP_STORAGE_KEY, base64Image);
                 pfpPreview.src = base64Image;
-                // Optional: Refresh links to show new PFP immediately
-                fetchAndDisplayLinks();
             };
             reader.readAsDataURL(file);
         };
@@ -281,17 +219,14 @@
 
         /**
          * Creates and displays a single link card in the UI.
-         * @param {object} link - The link object {id, name, url}.
-         * @param {boolean} isNew - If true, applies an animation for a newly added card.
+         * The PFP now comes from the link data itself.
          */
         const displayLink = (link, isNew = false) => {
-            const userPfp = localStorage.getItem(PFP_STORAGE_KEY) || DEFAULT_PFP;
-
             const card = document.createElement('div');
             card.className = 'link-card';
             card.innerHTML = `
                 <div class="card-header">
-                    <img src="${userPfp}" alt="Profile Picture" class="card-pfp">
+                    <img src="${link.pfp || DEFAULT_PFP}" alt="Profile Picture" class="card-pfp">
                     <h3 class="card-title">${link.name}</h3>
                 </div>
                 <p class="card-url">${link.url}</p>
@@ -308,41 +243,40 @@
             }
         };
         
-        /**
-         * Fetches all links from the server and displays them.
-         */
         const fetchAndDisplayLinks = async () => {
             try {
                 const response = await fetch('/api/links');
-                if (!response.ok) throw new Error('Failed to fetch links');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
                 const links = await response.json();
                 linkContainer.innerHTML = ''; 
                 links.forEach(link => displayLink(link, false));
             } catch (error) {
-                console.error('Error:', error);
-                linkContainer.innerHTML = '<p>Could not load links.</p>';
+                console.error('Error fetching links:', error);
+                linkContainer.innerHTML = '<p style="text-align: center;">Could not load links. Is the server running?</p>';
             }
         };
 
         /**
-         * Handles the form submission to add a new link.
+         * Handles form submission, now including the PFP data.
          */
         const handleAddLink = async (event) => {
             event.preventDefault(); 
             
             const groupName = groupNameInput.value.trim();
             const url = linkUrlInput.value.trim();
+            const pfp = localStorage.getItem(PFP_STORAGE_KEY) || DEFAULT_PFP;
+
             if (!groupName || !url) return;
 
             try {
                 const response = await fetch('/api/links', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: groupName, url: url }),
+                    body: JSON.stringify({ name: groupName, url: url, pfp: pfp }),
                 });
 
-                if (!response.ok) throw new Error('Failed to add link');
+                if (!response.ok) throw new Error('Server responded with an error.');
 
                 const newLink = await response.json();
                 displayLink(newLink, true); 
@@ -351,8 +285,8 @@
                 linkUrlInput.value = '';
 
             } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to add your link.');
+                console.error('Error adding link:', error);
+                alert('Failed to add your link. Please check the console for details.');
             }
         };
 
