@@ -19,9 +19,9 @@
         .app-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
 
         /* Login Screen */
-        #login-screen { display: flex; flex-direction: column; align-items: center; background: var(--primary-color); padding: 3rem; border-radius: var(--border-radius); box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: opacity 0.5s ease, transform 0.5s ease; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; background: var(--primary-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: opacity 0.5s ease, transform 0.5s ease; width: 90%; max-width: 400px; }
         #login-screen.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
-        #login-screen h1 { font-size: 2.5rem; text-shadow: 0 0 10px var(--accent-color); margin-bottom: 1rem; color: #fff; }
+        #login-screen h1 { text-align: center; font-size: 2rem; text-shadow: 0 0 10px var(--accent-color); margin-bottom: 1rem; color: #fff; }
         #username-input { width: 100%; padding: 15px; font-size: 1rem; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); margin-bottom: 1.5rem; transition: all 0.3s ease; }
         #username-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(233, 69, 96, 0.4); }
         #join-btn { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; background: linear-gradient(45deg, var(--accent-color), #f37b90); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; }
@@ -30,35 +30,56 @@
         /* Chat Screen */
         #chat-screen { width: 100%; height: 100%; display: none; flex-direction: column; background: var(--primary-color); opacity: 0; transition: opacity 0.5s ease; }
         #chat-screen.visible { display: flex; opacity: 1; }
-        .chat-container { display: flex; flex: 1; overflow: hidden; }
-        .user-sidebar { width: 250px; background-color: var(--bg-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1rem; }
+        .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; height: 60px; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .chat-header h1 { font-size: 1.2rem; color: #fff; }
+        #toggle-users-btn { background: none; border: none; color: var(--light-gray); cursor: pointer; padding: 0.5rem; }
+        #toggle-users-btn svg { width: 24px; height: 24px; transition: color 0.2s ease; }
+        #toggle-users-btn:hover svg { color: var(--accent-color); }
+        
+        .chat-container { position: relative; display: flex; flex: 1; overflow: hidden; }
+        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
+
+        .user-sidebar { position: fixed; top: 0; left: 0; width: 250px; height: 100%; background-color: var(--bg-color); z-index: 1000; display: flex; flex-direction: column; padding: 1rem; transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+        .user-sidebar.visible { transform: translateX(0); }
         .user-sidebar h2 { font-size: 1.2rem; color: #fff; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; }
         #user-list { list-style: none; overflow-y: auto; }
         #user-list li { padding: 8px 0; color: var(--light-gray); display: flex; align-items: center; gap: 10px; }
         #user-list li::before { content: '●'; color: var(--accent-color); font-size: 0.8em; }
+        
         .main-chat { flex: 1; display: flex; flex-direction: column; }
         #messages { list-style-type: none; padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
-        
-        .message { display: flex; flex-direction: column; max-width: 70%; }
-        /* --- NEW: Animation is now on a separate class --- */
-        .message.animate { animation: slideUpFadeIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        .message { display: flex; flex-direction: column; max-width: 80%; animation: slideUpFadeIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
         @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+        .message-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
+        .message .username { font-size: 0.9rem; font-weight: 600; }
+        .message .timestamp { font-size: 0.75rem; color: var(--light-gray); }
         .message .content { padding: 10px 15px; border-radius: var(--border-radius); line-height: 1.4; word-break: break-word; }
-        .message .username { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; }
+        
         .message.other { align-self: flex-start; }
         .message.other .username { color: var(--accent-color); }
         .message.other .content { background-color: var(--secondary-color); }
-        .message.mine { align-self: flex-end; text-align: right; }
+        
+        .message.mine { align-self: flex-end; }
+        .message.mine .message-header { flex-direction: row-reverse; }
         .message.mine .username { color: var(--light-gray); }
         .message.mine .content { background-color: var(--accent-color); color: #fff; }
-        .message.system { align-self: center; color: var(--light-gray); font-style: italic; font-size: 0.9rem; padding: 5px 0; max-width: 100%; text-align: center; }
         
-        .message-form { display: flex; padding: 1rem; border-top: 1px solid var(--border-color); background-color: var(--bg-color); }
+        .message.system { align-self: center; text-align: center; color: var(--light-gray); font-style: italic; font-size: 0.9rem; padding: 5px 0; max-width: 100%; }
+        .message.system .timestamp { margin-left: 8px; }
+        
+        .message-form { display: flex; padding: 1rem; border-top: 1px solid var(--border-color); background-color: var(--bg-color); flex-shrink: 0; }
         #message-input { flex: 1; padding: 15px; font-size: 1rem; background: var(--secondary-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); transition: all 0.3s ease; }
         #message-input:focus { outline: none; border-color: var(--accent-color); }
         #send-btn { padding: 15px 30px; margin-left: 10px; font-weight: 600; background: var(--accent-color); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.2s; }
-        #send-btn:hover { background: #d83a56; }
+
+        /* Desktop Layout */
+        @media (min-width: 768px) {
+            #chat-screen { flex-direction: row; }
+            .chat-header { display: none; } /* Hide header on desktop */
+            .user-sidebar { position: static; transform: translateX(0); border-right: 1px solid var(--border-color); }
+            #sidebar-overlay { display: none; } /* No overlay needed */
+        }
     </style>
 </head>
 <body>
@@ -73,26 +94,31 @@
         </div>
 
         <div id="chat-screen">
-            <div class="chat-container">
-                <div class="user-sidebar">
-                    <h2>Online Users</h2>
-                    <ul id="user-list"></ul>
-                </div>
-                <div class="main-chat">
-                    <ul id="messages"></ul>
-                    <form class="message-form" id="message-form">
-                        <input id="message-input" autocomplete="off" placeholder="Type a message..." />
-                        <button id="send-btn">Send</button>
-                    </form>
-                </div>
+            <div class="user-sidebar" id="user-sidebar">
+                <h2>Online Users</h2>
+                <ul id="user-list"></ul>
+            </div>
+            
+            <div id="sidebar-overlay"></div>
+
+            <div class="main-chat">
+                <header class="chat-header">
+                     <button id="toggle-users-btn" title="Toggle user list">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+                     </button>
+                    <h1>Calyx Dev Live Chat</h1>
+                    <div></div> <!-- Spacer -->
+                </header>
+                <ul id="messages"></ul>
+                <form class="message-form" id="message-form">
+                    <input id="message-input" autocomplete="off" placeholder="Type a message..." />
+                    <button id="send-btn" type="submit">Send</button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- This script is served automatically by the Socket.IO server -->
     <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- Client-side logic is now embedded here -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const socket = io();
@@ -105,9 +131,13 @@
             const messageInput = document.getElementById('message-input');
             const messagesList = document.getElementById('messages');
             const userList = document.getElementById('user-list');
+            const userSidebar = document.getElementById('user-sidebar');
+            const toggleUsersBtn = document.getElementById('toggle-users-btn');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
 
             let myUsername = '';
 
+            // --- UI & Event Handlers ---
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const username = usernameInput.value.trim();
@@ -131,54 +161,65 @@
                 }
             });
 
-            // --- UPDATED: addMessage function now handles animation separately ---
-            const addMessage = (data, type, shouldAnimate = false) => {
-                const item = document.createElement('li');
-                item.classList.add('message', type);
-                if (shouldAnimate) {
-                    item.classList.add('animate');
-                }
+            const toggleSidebar = () => {
+                userSidebar.classList.toggle('visible');
+                sidebarOverlay.classList.toggle('visible');
+            };
 
-                if (type === 'system') {
-                    const safeSystemMessage = document.createElement('span');
-                    safeSystemMessage.textContent = data;
-                    item.appendChild(safeSystemMessage);
+            toggleUsersBtn.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            // --- Helper Functions ---
+            const formatTimestamp = (dateString) => {
+                const date = new Date(dateString);
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const addMessage = (data) => {
+                const item = document.createElement('li');
+                item.classList.add('message');
+                const timestamp = formatTimestamp(data.timestamp);
+
+                if (data.type === 'system') {
+                    item.classList.add('system');
+                    item.innerHTML = `<span>${data.msg}</span><span class="timestamp">${timestamp}</span>`;
                 } else {
+                    const type = (data.username === myUsername) ? 'mine' : 'other';
+                    item.classList.add(type);
+                    
                     const safeUsername = document.createElement('div');
                     safeUsername.className = 'username';
                     safeUsername.textContent = data.username;
-
+                    
                     const safeContent = document.createElement('div');
                     safeContent.className = 'content';
                     safeContent.textContent = data.msg;
+                    
+                    const timestampDiv = document.createElement('div');
+                    timestampDiv.className = 'timestamp';
+                    timestampDiv.textContent = timestamp;
 
-                    item.appendChild(safeUsername);
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'message-header';
+                    headerDiv.appendChild(safeUsername);
+                    headerDiv.appendChild(timestampDiv);
+                    
+                    item.appendChild(headerDiv);
                     item.appendChild(safeContent);
                 }
                 
                 messagesList.appendChild(item);
                 messagesList.scrollTop = messagesList.scrollHeight;
             };
-
-            // --- NEW: Listen for chat history on joining ---
+            
+            // --- Socket.IO Listeners ---
             socket.on('load history', (history) => {
-                history.forEach(data => {
-                    const type = (data.username === myUsername) ? 'mine' : 'other';
-                    // Load history without animation
-                    addMessage(data, type, false);
-                });
+                history.forEach(data => addMessage(data));
             });
 
-            // Listen for NEW incoming chat messages and animate them
-            socket.on('chat message', (data) => {
-                const type = (data.username === myUsername) ? 'mine' : 'other';
-                addMessage(data, type, true);
-            });
+            socket.on('chat message', (data) => addMessage(data));
 
-            // Listen for NEW system messages and animate them
-            socket.on('system message', (msg) => {
-                addMessage(msg, 'system', true);
-            });
+            socket.on('system message', (data) => addMessage(data));
             
             socket.on('update users', (users) => {
                 userList.innerHTML = '';
@@ -191,4 +232,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
