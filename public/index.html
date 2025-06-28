@@ -24,7 +24,6 @@
         #login-screen h1 { text-align: center; font-size: 2rem; text-shadow: 0 0 10px var(--accent-color); margin-bottom: 1rem; color: #fff; }
         #username-input { width: 100%; padding: 15px; font-size: 1rem; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); margin-bottom: 1.5rem; transition: all 0.3s ease; }
         #username-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(233, 69, 96, 0.4); }
-        /* NEW: Error Message Style */
         #login-error { color: var(--accent-color); margin-top: -1rem; margin-bottom: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.2rem; display: none; }
         #join-btn { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; background: linear-gradient(45deg, var(--accent-color), #f37b90); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; }
         #join-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
@@ -57,8 +56,15 @@
         .social-links a:hover { color: var(--accent-color); transform: translateY(-2px); }
         .social-icon { width: 22px; height: 22px; }
         
-        .main-chat { flex: 1; display: flex; flex-direction: column; }
+        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; } /* Added position: relative */
         #messages { list-style-type: none; padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        
+        /* NEW: Scroll to Bottom Button */
+        #scroll-down-btn { position: absolute; bottom: 80px; right: 25px; width: 45px; height: 45px; background-color: var(--accent-color); color: #fff; border: none; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; }
+        #scroll-down-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        #scroll-down-btn:hover { background-color: #d83a56; }
+        #scroll-down-btn svg { width: 24px; height: 24px; }
+
         .message { display: flex; flex-direction: column; max-width: 80%; animation: slideUpFadeIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
         @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .message-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
@@ -88,6 +94,7 @@
             .chat-header { display: none; }
             .user-sidebar { position: static; transform: translateX(0); border-right: 1px solid var(--border-color); }
             #sidebar-overlay { display: none; }
+            #scroll-down-btn { right: 40px; }
         }
     </style>
 </head>
@@ -98,7 +105,6 @@
             <h1>Calyx Dev Live Chat</h1>
             <form id="login-form">
                 <input type="text" id="username-input" placeholder="Choose a username..." required autocomplete="off">
-                <!-- NEW: Error message placeholder -->
                 <p id="login-error"></p>
                 <button id="join-btn" type="submit">Join Chat</button>
             </form>
@@ -109,10 +115,7 @@
                 <h2>Online Users</h2>
                 <ul id="user-list"></ul>
                 <div class="sidebar-footer">
-                    <div class="dev-meta">
-                        <p class="dev-name">Calyx-Drey</p>
-                        <p class="dev-title">Developer</p>
-                    </div>
+                    <div class="dev-meta"><p class="dev-name">Calyx-Drey</p><p class="dev-title">Developer</p></div>
                     <div class="social-links">
                         <a href="#" target="_blank" title="GitHub"><svg class="social-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a>
                         <a href="#" target="_blank" title="Twitter/X"><svg class="social-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.602.75zM11.437 13.975h1.34L4.04 2.165H2.59l8.847 11.81z"></path></svg></a>
@@ -128,6 +131,10 @@
                     <div></div>
                 </header>
                 <ul id="messages"></ul>
+                <!-- NEW: Scroll to Bottom Button -->
+                <button id="scroll-down-btn" title="Scroll to bottom">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4h2v12l5.5-5.5 1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5 11 16V4z"></path></svg>
+                </button>
                 <form class="message-form" id="message-form">
                     <input id="message-input" autocomplete="off" placeholder="Type a message..." />
                     <button id="send-btn" type="submit">Send</button>
@@ -145,7 +152,7 @@
             const chatScreen = document.getElementById('chat-screen');
             const loginForm = document.getElementById('login-form');
             const usernameInput = document.getElementById('username-input');
-            const loginError = document.getElementById('login-error'); // NEW
+            const loginError = document.getElementById('login-error');
             const messageForm = document.getElementById('message-form');
             const messageInput = document.getElementById('message-input');
             const messagesList = document.getElementById('messages');
@@ -153,13 +160,13 @@
             const userSidebar = document.getElementById('user-sidebar');
             const toggleUsersBtn = document.getElementById('toggle-users-btn');
             const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const scrollDownBtn = document.getElementById('scroll-down-btn'); // NEW
 
             let myUsername = '';
 
-            // --- UI & Event Handlers ---
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                loginError.style.display = 'none'; // Hide previous errors
+                loginError.style.display = 'none';
                 const username = usernameInput.value.trim();
                 if (username) {
                     myUsername = username;
@@ -184,15 +191,13 @@
             toggleUsersBtn.addEventListener('click', toggleSidebar);
             sidebarOverlay.addEventListener('click', toggleSidebar);
 
-            // --- Helper Functions ---
             const formatTimestamp = (dateString) => {
                 const date = new Date(dateString);
                 return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             };
 
             const addMessage = (data) => {
-                // --- NEW: Smart Scrolling Logic ---
-                const scrollBuffer = 100; // Pixels from bottom to trigger auto-scroll
+                const scrollBuffer = 100;
                 const isScrolledToBottom = messagesList.scrollHeight - messagesList.clientHeight <= messagesList.scrollTop + scrollBuffer;
                 
                 const item = document.createElement('li');
@@ -206,38 +211,35 @@
                     const type = (data.username === myUsername) ? 'mine' : 'other';
                     item.classList.add(type);
                     
-                    const safeUsername = document.createElement('div');
-                    safeUsername.className = 'username';
-                    safeUsername.textContent = data.username;
-                    
-                    const safeContent = document.createElement('div');
-                    safeContent.className = 'content';
-                    safeContent.textContent = data.msg;
-                    
-                    const timestampDiv = document.createElement('div');
-                    timestampDiv.className = 'timestamp';
-                    timestampDiv.textContent = timestamp;
-
-                    const headerDiv = document.createElement('div');
-                    headerDiv.className = 'message-header';
-                    headerDiv.appendChild(safeUsername);
-                    headerDiv.appendChild(timestampDiv);
-                    
-                    item.appendChild(headerDiv);
-                    item.appendChild(safeContent);
+                    const safeUsername = document.createElement('div'); safeUsername.className = 'username'; safeUsername.textContent = data.username;
+                    const safeContent = document.createElement('div'); safeContent.className = 'content'; safeContent.textContent = data.msg;
+                    const timestampDiv = document.createElement('div'); timestampDiv.className = 'timestamp'; timestampDiv.textContent = timestamp;
+                    const headerDiv = document.createElement('div'); headerDiv.className = 'message-header';
+                    headerDiv.appendChild(safeUsername); headerDiv.appendChild(timestampDiv);
+                    item.appendChild(headerDiv); item.appendChild(safeContent);
                 }
                 
                 messagesList.appendChild(item);
-                
-                // Only scroll if user was already at the bottom
                 if (isScrolledToBottom) {
                     messagesList.scrollTop = messagesList.scrollHeight;
                 }
             };
             
-            // --- Socket.IO Listeners ---
+            // --- NEW: Scroll Button Logic ---
+            messagesList.addEventListener('scroll', () => {
+                const scrollBuffer = 10;
+                if (messagesList.scrollHeight - messagesList.clientHeight > messagesList.scrollTop + scrollBuffer) {
+                    scrollDownBtn.classList.add('visible');
+                } else {
+                    scrollDownBtn.classList.remove('visible');
+                }
+            });
+
+            scrollDownBtn.addEventListener('click', () => {
+                messagesList.scrollTo({ top: messagesList.scrollHeight, behavior: 'smooth' });
+            });
             
-            // NEW: Listen for successful join
+            // --- Socket.IO Listeners ---
             socket.on('join success', () => {
                 loginScreen.classList.add('hidden');
                 setTimeout(() => {
@@ -246,7 +248,6 @@
                 }, 500);
             });
 
-            // NEW: Listen for join error (username taken)
             socket.on('join error', (errorMessage) => {
                 loginError.textContent = errorMessage;
                 loginError.style.display = 'block';
@@ -257,7 +258,6 @@
             });
 
             socket.on('chat message', (data) => addMessage(data));
-
             socket.on('system message', (data) => addMessage(data));
             
             socket.on('update users', (users) => {
