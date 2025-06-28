@@ -15,11 +15,10 @@ let users = {};
 let messageHistory = [];
 const HISTORY_LIMIT = 50;
 
-// Helper to add a message to history
 const addMessageToHistory = (messageObject) => {
     messageHistory.push(messageObject);
     if (messageHistory.length > HISTORY_LIMIT) {
-        messageHistory.shift(); // Remove the oldest message
+        messageHistory.shift();
     }
 };
 
@@ -27,10 +26,19 @@ io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
     socket.on('join', (username) => {
+        // --- NEW: Check if username is already taken ---
+        if (Object.values(users).includes(username)) {
+            socket.emit('join error', 'This username is already taken. Please choose another.');
+            return;
+        }
+
+        // --- If username is available, proceed ---
         users[socket.id] = username;
         socket.username = username;
+        
+        // Let the client know the join was successful
+        socket.emit('join success');
 
-        // Send existing chat history to the new user
         socket.emit('load history', messageHistory);
         
         const systemMessage = {
