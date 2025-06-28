@@ -3,300 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Link Hub</title>
+    <title>Calyx Dev Live Chat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --bg-color: #1a1a2e;
-            --card-color: #16213e;
-            --primary-color: #0f3460;
-            --accent-color: #e94560;
-            --text-color: #dcdcdc;
-            --glow-color: rgba(233, 69, 96, 0.6);
+            --bg-color: #1a1a2e; --primary-color: #16213e; --secondary-color: #0f3460;
+            --accent-color: #e94560; --font-color: #dcdcdc; --light-gray: #a9a9a9;
+            --border-radius: 12px; --border-color: #0f3460;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--font-color); }
+        .app-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-            overflow-x: hidden;
-        }
+        /* Login Screen */
+        #login-screen { display: flex; flex-direction: column; align-items: center; background: var(--primary-color); padding: 3rem; border-radius: var(--border-radius); box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: opacity 0.5s ease, transform 0.5s ease; }
+        #login-screen.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
+        #login-screen h1 { font-size: 2.5rem; text-shadow: 0 0 10px var(--accent-color); margin-bottom: 1rem; color: #fff; }
+        #username-input { width: 100%; padding: 15px; font-size: 1rem; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); margin-bottom: 1.5rem; transition: all 0.3s ease; }
+        #username-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(233, 69, 96, 0.4); }
+        #join-btn { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; background: linear-gradient(45deg, var(--accent-color), #f37b90); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; }
+        #join-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
 
-        .container { width: 100%; max-width: 900px; }
-
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            color: white;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
-        }
-
-        /* --- User Profile Section --- */
-        .profile-uploader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            background-color: var(--card-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 3rem;
-            animation: fadeInUp 0.8s 0.2s ease-out backwards;
-            border: 1px solid var(--primary-color);
-        }
-
-        .profile-picture-preview {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 3px solid var(--accent-color);
-            object-fit: cover;
-            background-color: var(--bg-color);
-            transition: transform 0.3s ease;
-        }
+        /* Chat Screen */
+        #chat-screen { width: 100%; height: 100%; display: none; flex-direction: column; background: var(--primary-color); opacity: 0; transition: opacity 0.5s ease; }
+        #chat-screen.visible { display: flex; opacity: 1; }
+        .chat-container { display: flex; flex: 1; overflow: hidden; }
+        .user-sidebar { width: 250px; background-color: var(--bg-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1rem; }
+        .user-sidebar h2 { font-size: 1.2rem; color: #fff; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; }
+        #user-list { list-style: none; overflow-y: auto; }
+        #user-list li { padding: 8px 0; color: var(--light-gray); display: flex; align-items: center; gap: 10px; }
+        #user-list li::before { content: '●'; color: var(--accent-color); font-size: 0.8em; }
+        .main-chat { flex: 1; display: flex; flex-direction: column; }
+        #messages { list-style-type: none; padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
         
-        .profile-uploader label {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-
-        .profile-uploader label:hover { background-color: var(--accent-color); }
-        #pfp-input { display: none; }
-
-        /* --- Form for Uploading --- */
-        #link-form {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 3rem;
-            animation: fadeInUp 0.8s 0.4s ease-out backwards;
-        }
-
-        @media (min-width: 600px) {
-            #link-form { grid-template-columns: 1fr 1fr auto; }
-        }
-
-        .form-input {
-            width: 100%; padding: 1rem; font-size: 1rem; background-color: var(--card-color);
-            border: 2px solid var(--primary-color); border-radius: 8px; color: var(--text-color);
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px var(--glow-color);
-        }
-
-        #submit-btn {
-            padding: 1rem 1.5rem; font-size: 1rem; font-weight: 600; background-color: var(--accent-color);
-            color: white; border: none; border-radius: 8px; cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        #submit-btn:hover {
-            transform: translateY(-3px); box-shadow: 0 5px 15px var(--glow-color);
-        }
-
-        /* --- Link Display Grid --- */
-        #link-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .link-card {
-            background-color: var(--card-color); border-radius: 12px; padding: 1.5rem;
-            border: 1px solid var(--primary-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex; flex-direction: column; gap: 1rem;
-        }
+        .message { display: flex; flex-direction: column; max-width: 70%; animation: slideUpFadeIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message .content { padding: 10px 15px; border-radius: var(--border-radius); line-height: 1.4; word-break: break-word; }
+        .message .username { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; }
         
-        .link-card:hover {
-            transform: translateY(-8px); box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        }
-
-        .card-header { display: flex; align-items: center; gap: 1rem; }
-        .card-pfp {
-            width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
-            flex-shrink: 0; border: 2px solid var(--accent-color); background-color: var(--bg-color);
-        }
-        .card-title { font-size: 1.25rem; font-weight: 600; color: white; word-break: break-word; }
-        .card-url {
-            font-size: 0.8rem; word-break: break-all; opacity: 0.6; padding-bottom: 1rem;
-            border-bottom: 1px solid var(--primary-color);
-        }
-        .card-join-btn {
-            margin-top: auto; display: block; text-align: center; text-decoration: none;
-            background: var(--accent-color); color: white; padding: 0.75rem; border-radius: 8px;
-            font-weight: 600; transition: background 0.3s ease, transform 0.2s ease;
-        }
-        .card-join-btn:hover { background: #ff6384; transform: scale(1.05); }
-
-        /* --- Animations --- */
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        .message.other { align-self: flex-start; }
+        .message.other .username { color: var(--accent-color); }
+        .message.other .content { background-color: var(--secondary-color); }
+        
+        .message.mine { align-self: flex-end; text-align: right; }
+        .message.mine .username { color: var(--light-gray); }
+        .message.mine .content { background-color: var(--accent-color); color: #fff; }
+        
+        .message.system { align-self: center; color: var(--light-gray); font-style: italic; font-size: 0.9rem; padding: 5px 0; max-width: 100%; text-align: center; }
+        
+        .message-form { display: flex; padding: 1rem; border-top: 1px solid var(--border-color); background-color: var(--bg-color); }
+        #message-input { flex: 1; padding: 15px; font-size: 1rem; background: var(--secondary-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); transition: all 0.3s ease; }
+        #message-input:focus { outline: none; border-color: var(--accent-color); }
+        #send-btn { padding: 15px 30px; margin-left: 10px; font-weight: 600; background: var(--accent-color); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.2s; }
+        #send-btn:hover { background: #d83a56; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Group Link Hub</h1>
-        </header>
-
-        <main>
-            <div class="profile-uploader">
-                <img src="" alt="Your Profile Picture" id="pfp-preview" class="profile-picture-preview">
-                <label for="pfp-input">Set Your Picture</label>
-                <input type="file" id="pfp-input" accept="image/*">
-                <p style="font-size: 0.8rem; opacity: 0.7;">Your picture is saved in your browser for your posts.</p>
-            </div>
-
-            <form id="link-form">
-                <input type="text" id="group-name-input" class="form-input" placeholder="Group Name" required>
-                <input type="url" id="link-url-input" class="form-input" placeholder="Paste group link here..." required>
-                <button type="submit" id="submit-btn">Share Link</button>
+    <div class="app-wrapper">
+        <div id="login-screen">
+            <h1>Calyx Dev Live Chat</h1>
+            <form id="login-form">
+                <input type="text" id="username-input" placeholder="Choose a username..." required autocomplete="off">
+                <button id="join-btn" type="submit">Join Chat</button>
             </form>
+        </div>
 
-            <div id="link-container"></div>
-        </main>
+        <div id="chat-screen">
+            <div class="chat-container">
+                <div class="user-sidebar">
+                    <h2>Online Users</h2>
+                    <ul id="user-list"></ul>
+                </div>
+                <div class="main-chat">
+                    <ul id="messages"></ul>
+                    <form class="message-form" id="message-form">
+                        <input id="message-input" autocomplete="off" placeholder="Type a message..." />
+                        <button id="send-btn">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- This script is served automatically by the Socket.IO server -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Client-side logic is now embedded here -->
     <script>
-        // --- DOM Elements ---
-        const pfpInput = document.getElementById('pfp-input');
-        const pfpPreview = document.getElementById('pfp-preview');
-        const linkForm = document.getElementById('link-form');
-        const groupNameInput = document.getElementById('group-name-input');
-        const linkUrlInput = document.getElementById('link-url-input');
-        const linkContainer = document.getElementById('link-container');
-        
-        // --- Constants ---
-        const PFP_STORAGE_KEY = 'userProfilePicture';
-        const DEFAULT_PFP = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5ZGFkYSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSIzIi8+PHBhdGggZD0iTTEyIDEyYzQtMyA4IDAgOCAwIi8+PHBhdGggZD0iTTQgMTJzNCAzIDggMCIvPjxwYXRoIGQ9Ik0xOCAyMWEyIDIgMCAwIDAgMi0yYzAtMy41LTMuNTgtNC02LTRzLTYgLjUtNiA0YTIgMiAwIDAgMCAyIDIiLz48L3N2Zz4=';
-
-        // --- Profile Picture Logic ---
-        const loadPfp = () => {
-            const savedPfp = localStorage.getItem(PFP_STORAGE_KEY);
-            pfpPreview.src = savedPfp || DEFAULT_PFP;
-        };
-
-        const handlePfpChange = (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64Image = e.target.result;
-                localStorage.setItem(PFP_STORAGE_KEY, base64Image);
-                pfpPreview.src = base64Image;
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // --- Link Card Logic ---
-
-        /**
-         * Creates and displays a single link card in the UI.
-         * The PFP now comes from the link data itself.
-         */
-        const displayLink = (link, isNew = false) => {
-            const card = document.createElement('div');
-            card.className = 'link-card';
-            card.innerHTML = `
-                <div class="card-header">
-                    <img src="${link.pfp || DEFAULT_PFP}" alt="Profile Picture" class="card-pfp">
-                    <h3 class="card-title">${link.name}</h3>
-                </div>
-                <p class="card-url">${link.url}</p>
-                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="card-join-btn">
-                    Join Group
-                </a>
-            `;
-            
-            if (isNew) {
-                card.style.animation = 'popIn 0.5s ease-out forwards';
-                linkContainer.prepend(card);
-            } else {
-                linkContainer.appendChild(card);
-            }
-        };
-        
-        const fetchAndDisplayLinks = async () => {
-            try {
-                const response = await fetch('/api/links');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
-                const links = await response.json();
-                linkContainer.innerHTML = ''; 
-                links.forEach(link => displayLink(link, false));
-            } catch (error) {
-                console.error('Error fetching links:', error);
-                linkContainer.innerHTML = '<p style="text-align: center;">Could not load links. Is the server running?</p>';
-            }
-        };
-
-        /**
-         * Handles form submission, now including the PFP data.
-         */
-        const handleAddLink = async (event) => {
-            event.preventDefault(); 
-            
-            const groupName = groupNameInput.value.trim();
-            const url = linkUrlInput.value.trim();
-            const pfp = localStorage.getItem(PFP_STORAGE_KEY) || DEFAULT_PFP;
-
-            if (!groupName || !url) return;
-
-            try {
-                const response = await fetch('/api/links', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: groupName, url: url, pfp: pfp }),
-                });
-
-                if (!response.ok) throw new Error('Server responded with an error.');
-
-                const newLink = await response.json();
-                displayLink(newLink, true); 
-                
-                groupNameInput.value = '';
-                linkUrlInput.value = '';
-
-            } catch (error) {
-                console.error('Error adding link:', error);
-                alert('Failed to add your link. Please check the console for details.');
-            }
-        };
-
-        // --- Event Listeners & Initial Load ---
-        pfpInput.addEventListener('change', handlePfpChange);
-        linkForm.addEventListener('submit', handleAddLink);
-        
         document.addEventListener('DOMContentLoaded', () => {
-            loadPfp();
-            fetchAndDisplayLinks();
+            const socket = io();
+
+            // DOM Elements
+            const loginScreen = document.getElementById('login-screen');
+            const chatScreen = document.getElementById('chat-screen');
+            const loginForm = document.getElementById('login-form');
+            const usernameInput = document.getElementById('username-input');
+            const messageForm = document.getElementById('message-form');
+            const messageInput = document.getElementById('message-input');
+            const messagesList = document.getElementById('messages');
+            const userList = document.getElementById('user-list');
+
+            let myUsername = '';
+
+            // Handle user joining the chat
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = usernameInput.value.trim();
+                if (username) {
+                    myUsername = username;
+                    socket.emit('join', username);
+
+                    // Animate screen transition
+                    loginScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        loginScreen.style.display = 'none';
+                        chatScreen.classList.add('visible');
+                    }, 500); // Match CSS transition duration
+                }
+            });
+
+            // Handle sending a message
+            messageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const msg = messageInput.value.trim();
+                if (msg) {
+                    socket.emit('chat message', msg);
+                    messageInput.value = '';
+                }
+            });
+
+            // Function to add a message to the UI
+            const addMessage = (data, type) => {
+                const item = document.createElement('li');
+                item.classList.add('message', type);
+
+                if (type === 'system') {
+                    item.textContent = data;
+                } else {
+                    // Sanitize user-generated content to prevent XSS
+                    const safeUsername = document.createElement('div');
+                    safeUsername.className = 'username';
+                    safeUsername.textContent = data.username;
+
+                    const safeContent = document.createElement('div');
+                    safeContent.className = 'content';
+                    safeContent.textContent = data.msg;
+
+                    item.appendChild(safeUsername);
+                    item.appendChild(safeContent);
+                }
+                
+                messagesList.appendChild(item);
+                // Auto-scroll to the bottom
+                messagesList.scrollTop = messagesList.scrollHeight;
+            };
+
+            // Listen for incoming chat messages
+            socket.on('chat message', (data) => {
+                const type = (data.username === myUsername) ? 'mine' : 'other';
+                addMessage(data, type);
+            });
+
+            // Listen for system messages
+            socket.on('system message', (msg) => {
+                addMessage(msg, 'system');
+            });
+            
+            // Listen for updates to the user list
+            socket.on('update users', (users) => {
+                userList.innerHTML = ''; // Clear the list
+                users.forEach(user => {
+                    const item = document.createElement('li');
+                    item.textContent = user;
+                    userList.appendChild(item);
+                });
+            });
         });
     </script>
 </body>
