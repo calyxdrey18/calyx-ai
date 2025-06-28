@@ -42,30 +42,24 @@ app.get('/api/links', (req, res) => {
     res.json(links);
 });
 
-// POST /api/links - Add a new link with user info
+// POST /api/links - Add a new link
 app.post('/api/links', (req, res) => {
-    const { groupUrl, username, pfpUrl } = req.body;
+    // We now expect 'name' and 'url' from the frontend
+    const { name, url } = req.body;
 
-    // --- Enhanced Validation ---
-    if (!groupUrl || !username) {
-        return res.status(400).json({ message: 'Group URL and Username are required.' });
-    }
-    if (typeof groupUrl !== 'string' || typeof username !== 'string') {
-        return res.status(400).json({ message: 'Invalid data format.' });
+    // Basic validation for both fields
+    if (!name || typeof name !== 'string' || !url || typeof url !== 'string') {
+        return res.status(400).json({ message: 'Invalid name or URL provided.' });
     }
 
     const newLink = {
         id: Date.now(),
-        username: username.trim(),
-        pfpUrl: pfpUrl ? pfpUrl.trim() : '', // Store pfpUrl, or an empty string if not provided
-        groupUrl: groupUrl.trim(),
+        name: name, // Add the name
+        url: url,
         createdAt: new Date().toISOString()
     };
 
-    // Add to the start of the array
-    links.unshift(newLink); 
-    
-    // Save the updated array to the file
+    links.unshift(newLink);
     saveLinks(links);
 
     res.status(201).json(newLink);
