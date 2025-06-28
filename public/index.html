@@ -56,10 +56,25 @@
         .social-links a:hover { color: var(--accent-color); transform: translateY(-2px); }
         .social-icon { width: 22px; height: 22px; }
         
-        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; } /* Added position: relative */
-        #messages { list-style-type: none; padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        /* --- CRITICAL FIX HERE --- */
+        .main-chat { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            overflow: hidden; /* This prevents the container itself from growing past its bounds */
+        }
         
-        /* NEW: Scroll to Bottom Button */
+        #messages { 
+            list-style-type: none; 
+            padding: 1.5rem; 
+            flex: 1; /* This makes it take up all available space in the parent */
+            overflow-y: auto; /* This enables the scrollbar when content overflows */
+            display: flex; 
+            flex-direction: column; 
+            gap: 1rem; 
+        }
+        
         #scroll-down-btn { position: absolute; bottom: 80px; right: 25px; width: 45px; height: 45px; background-color: var(--accent-color); color: #fff; border: none; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; }
         #scroll-down-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
         #scroll-down-btn:hover { background-color: #d83a56; }
@@ -131,7 +146,6 @@
                     <div></div>
                 </header>
                 <ul id="messages"></ul>
-                <!-- NEW: Scroll to Bottom Button -->
                 <button id="scroll-down-btn" title="Scroll to bottom">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4h2v12l5.5-5.5 1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5 11 16V4z"></path></svg>
                 </button>
@@ -160,7 +174,7 @@
             const userSidebar = document.getElementById('user-sidebar');
             const toggleUsersBtn = document.getElementById('toggle-users-btn');
             const sidebarOverlay = document.getElementById('sidebar-overlay');
-            const scrollDownBtn = document.getElementById('scroll-down-btn'); // NEW
+            const scrollDownBtn = document.getElementById('scroll-down-btn');
 
             let myUsername = '';
 
@@ -196,7 +210,8 @@
                 return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             };
 
-            const addMessage = (data) => {
+            const addMessage = (data, options = {}) => {
+                const { shouldScroll } = options;
                 const scrollBuffer = 100;
                 const isScrolledToBottom = messagesList.scrollHeight - messagesList.clientHeight <= messagesList.scrollTop + scrollBuffer;
                 
@@ -210,7 +225,6 @@
                 } else {
                     const type = (data.username === myUsername) ? 'mine' : 'other';
                     item.classList.add(type);
-                    
                     const safeUsername = document.createElement('div'); safeUsername.className = 'username'; safeUsername.textContent = data.username;
                     const safeContent = document.createElement('div'); safeContent.className = 'content'; safeContent.textContent = data.msg;
                     const timestampDiv = document.createElement('div'); timestampDiv.className = 'timestamp'; timestampDiv.textContent = timestamp;
@@ -220,12 +234,12 @@
                 }
                 
                 messagesList.appendChild(item);
-                if (isScrolledToBottom) {
+                
+                if (shouldScroll || isScrolledToBottom) {
                     messagesList.scrollTop = messagesList.scrollHeight;
                 }
             };
             
-            // --- NEW: Scroll Button Logic ---
             messagesList.addEventListener('scroll', () => {
                 const scrollBuffer = 10;
                 if (messagesList.scrollHeight - messagesList.clientHeight > messagesList.scrollTop + scrollBuffer) {
@@ -239,7 +253,6 @@
                 messagesList.scrollTo({ top: messagesList.scrollHeight, behavior: 'smooth' });
             });
             
-            // --- Socket.IO Listeners ---
             socket.on('join success', () => {
                 loginScreen.classList.add('hidden');
                 setTimeout(() => {
@@ -254,7 +267,7 @@
             });
 
             socket.on('load history', (history) => {
-                history.forEach(data => addMessage(data));
+                history.forEach(data => addMessage(data, { shouldScroll: true }));
             });
 
             socket.on('chat message', (data) => addMessage(data));
