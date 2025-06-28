@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Link Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- General & Theming --- */
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #16213e;
+            --primary-color: #0f3460;
+            --accent-color: #e94560;
+            --text-color: #dcdcdc;
+            --glow-color: rgba(233, 69, 96, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
+        }
+
+        /* --- Form for Uploading --- */
+        #link-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s 0.2s ease-out backwards;
+        }
+
+        #link-input {
+            flex-grow: 1;
+            padding: 1rem;
+            font-size: 1rem;
+            background-color: var(--card-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        #link-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        #link-form button {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        #link-form button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--glow-color);
+        }
+
+        /* --- Link Display Grid --- */
+        #link-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .link-card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text-color);
+            border: 1px solid transparent;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            word-break: break-all;
+            position: relative;
+            /* Animation applied via JavaScript */
+        }
+        
+        .link-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .link-card::before {
+            content: '🔗';
+            font-size: 1.5rem;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            opacity: 0.2;
+            transition: opacity 0.3s ease;
+        }
+
+        .link-card:hover::before {
+            opacity: 1;
+        }
+
+
+        /* --- Keyframe Animations --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Group Link Hub</h1>
+        </header>
+
+        <main>
+            <form id="link-form">
+                <input type="url" id="link-input" placeholder="Paste your group link here..." required>
+                <button type="submit">Share Link</button>
+            </form>
+
+            <div id="link-container">
+                <!-- Links will be dynamically inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const linkForm = document.getElementById('link-form');
+        const linkInput = document.getElementById('link-input');
+        const linkContainer = document.getElementById('link-container');
+        
+        // --- Functions ---
+
+        /**
+         * Creates and displays a single link card in the UI.
+         * @param {object} link - The link object {id, url, createdAt}.
+         * @param {boolean} isNew - If true, applies an animation for a newly added card.
+         */
+        const displayLink = (link, isNew = false) => {
+            const card = document.createElement('a');
+            card.className = 'link-card';
+            card.href = link.url;
+            card.target = '_blank'; // Open in a new tab
+            card.rel = 'noopener noreferrer'; // Security best practice
+            card.textContent = link.url;
+            
+            if (isNew) {
+                // Apply animation for new cards
+                card.style.animation = 'popIn 0.5s ease-out forwards';
+                // Add to the top of the grid
+                linkContainer.prepend(card);
+            } else {
+                // Append to the end for initial load
+                linkContainer.appendChild(card);
+            }
+        };
+        
+        /**
+         * Fetches all links from the server and displays them.
+         */
+        const fetchAndDisplayLinks = async () => {
+            try {
+                const response = await fetch('/api/links');
+                if (!response.ok) throw new Error('Failed to fetch links');
+                
+                const links = await response.json();
+                
+                // Clear any existing links before re-rendering
+                linkContainer.innerHTML = ''; 
+                
+                // Display each link
+                links.forEach(link => displayLink(link));
+            } catch (error) {
+                console.error('Error:', error);
+                linkContainer.innerHTML = '<p>Could not load links. Please try again later.</p>';
+            }
+        };
+
+        /**
+         * Handles the form submission to add a new link.
+         */
+        const handleAddLink = async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            
+            const url = linkInput.value.trim();
+            if (!url) return; // Do nothing if input is empty
+
+            try {
+                const response = await fetch('/api/links', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url }),
+                });
+
+                if (!response.ok) throw new Error('Failed to add link');
+
+                const newLink = await response.json();
+                
+                // Display the new link with a cool animation
+                displayLink(newLink, true); 
+                
+                // Clear the input field
+                linkInput.value = '';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add your link. Please check the console.');
+            }
+        };
+
+        // --- Event Listeners ---
+        linkForm.addEventListener('submit', handleAddLink);
+        
+        // --- Initial Load ---
+        // Fetch and display all links when the page first loads
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayLinks);
+
+    </script>
+</body>
+</html>
