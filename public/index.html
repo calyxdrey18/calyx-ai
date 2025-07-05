@@ -3,294 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calyx Dev Live Chat</title>
+    <title>Calyx Drey Dev | Live Chat</title>
+    
+    <!-- Google Fonts for modern look & watermark -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Audiowide&display=swap" rel="stylesheet">
 
     <style>
+        /* --- 1. Calyx Drey Dev Theme & Basic Setup --- */
         :root {
-            --bg-color: #1a1a2e; --primary-color: #16213e; --secondary-color: #0f3460;
-            --accent-color: #e94560; --font-color: #dcdcdc; --light-gray: #a9a9a9;
-            --border-radius: 12px; --border-color: #0f3460; --link-blue-color: #38bdf8;
+            --bg-color: #1a1a2e; --primary-color: #16213e; --secondary-color: #0f3460; --accent-color: #e94560; --font-color: #dcdcdc; --light-gray: #a9a9a9; --border-radius: 16px; --border-color: rgba(255, 255, 255, 0.1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; overflow: hidden; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--font-color); }
-        .app-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--font-color); overflow: hidden; /* Prevent body scroll */ }
 
-        #login-screen { display: flex; flex-direction: column; align-items: center; background: var(--primary-color); padding: 2rem; border-radius: var(--border-radius); box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: opacity 0.5s ease, transform 0.5s ease; width: 90%; max-width: 400px; }
-        #login-screen.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
-        #login-screen h1 { text-align: center; font-size: 2rem; text-shadow: 0 0 10px var(--accent-color); margin-bottom: 1rem; color: #fff; }
-        #username-input { width: 100%; padding: 15px; font-size: 1rem; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); margin-bottom: 1.5rem; transition: all 0.3s ease; }
-        #username-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(233, 69, 96, 0.4); }
-        #login-error { color: var(--accent-color); margin-top: -1rem; margin-bottom: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.2rem; display: none; }
-        #join-btn { width: 100%; padding: 15px; font-size: 1rem; font-weight: 600; background: linear-gradient(45deg, var(--accent-color), #f37b90); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease; }
-        #join-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
+        /* --- 2. Live Background & Watermark --- */
+        #live-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .watermark { position: fixed; bottom: 20px; left: 20px; font-family: 'Audiowide', cursive; font-size: 1.2rem; font-weight: 600; color: #fff; z-index: 1000; pointer-events: none; text-transform: uppercase; letter-spacing: 2px; animation: pulseGlow 4s infinite ease-in-out; }
 
-        /* --- "Cooler Than Ever" Sidebar & Header --- */
-        #chat-screen { width: 100%; height: 100%; display: none; flex-direction: column; background: var(--primary-color); opacity: 0; transition: opacity 0.5s ease; }
-        #chat-screen.visible { display: flex; opacity: 1; }
-        .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; height: 60px; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .chat-header h1 { font-size: 1.2rem; color: #fff; }
-        
-        #toggle-users-btn { background: none; border: none; color: var(--light-gray); cursor: pointer; padding: 0.5rem; width: 40px; height: 40px; position: relative; }
-        .icon-menu, .icon-close { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: transform 0.3s ease, opacity 0.3s ease; }
-        .icon-close { opacity: 0; transform: translate(-50%, -50%) rotate(45deg); }
-        #chat-screen.sidebar-active .icon-menu { opacity: 0; transform: translate(-50%, -50%) rotate(-45deg); }
-        #chat-screen.sidebar-active .icon-close { opacity: 1; transform: translate(-50%, -50%) rotate(0); }
-        
-        .chat-container { position: relative; display: flex; flex: 1; overflow: hidden; }
-        #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
-        #chat-screen.sidebar-active #sidebar-overlay { opacity: 1; pointer-events: auto; }
+        /* --- 3. Animations --- */
+        @keyframes pulseGlow { 0%, 100% { text-shadow: 0 0 10px var(--accent-color); opacity: 0.2; } 50% { text-shadow: 0 0 20px var(--accent-color), 0 0 5px var(--accent-color); opacity: 0.4; } }
+        @keyframes subtlePop { 0% { transform: scale(1); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }
+        @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .user-sidebar {
-            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
-            background: rgba(22, 33, 62, 0.7); /* Frosted Glass BG */
+        /* --- 4. Main App Container --- */
+        .page-wrapper { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; z-index: 1; }
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 800px;
+            background-color: rgba(22, 33, 62, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
-            border-right: 1px solid var(--secondary-color);
-            z-index: 1000; display: flex; flex-direction: column; padding: 1.5rem;
-            transform: translateX(-100%) rotateY(-30deg); /* 3D Animation */
-            transform-origin: left center;
-            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Crucial for containing chat UI */
         }
-        #chat-screen.sidebar-active .user-sidebar { transform: translateX(0) rotateY(0); }
-        
-        /* Staggered Content Animation */
-        .user-sidebar > * { opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease, transform 0.3s ease; }
-        #chat-screen.sidebar-active .user-sidebar > * { opacity: 1; transform: translateY(0); }
-        #chat-screen.sidebar-active .user-sidebar > *:nth-child(1) { transition-delay: 0.1s; } /* h2 */
-        #chat-screen.sidebar-active .user-sidebar > *:nth-child(2) { transition-delay: 0.2s; } /* ul */
-        #chat-screen.sidebar-active .user-sidebar > *:nth-child(3) { transition-delay: 0.3s; } /* footer */
 
-        .user-sidebar h2 { font-size: 1.2rem; color: #fff; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; flex-shrink: 0; }
-        #user-list { list-style: none; overflow-y: auto; flex-grow: 1; }
-        #user-list li { padding: 8px 10px; margin-left: -10px; color: var(--light-gray); display: flex; align-items: center; gap: 10px; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; }
-        #user-list li:hover { background-color: var(--primary-color); color: #fff; }
+        /* --- 5. Themed Login Screen --- */
+        #login-screen {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 3rem;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        #login-screen.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        #login-screen h1 {
+            font-family: 'Audiowide', cursive; font-size: 2.5rem; text-shadow: 0 0 15px var(--accent-color);
+            margin-bottom: 2rem; color: #fff; text-align: center;
+        }
+        #login-form { width: 100%; max-width: 400px; }
+        #username-input {
+            width: 100%; padding: 15px; font-size: 1rem; background: var(--bg-color);
+            border: 2px solid var(--secondary-color); border-radius: var(--border-radius);
+            color: var(--font-color); margin-bottom: 1.5rem; transition: all 0.3s ease;
+        }
+        #username-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 15px rgba(233, 69, 96, 0.4); }
+        #join-btn {
+            width: 100%; padding: 15px; font-size: 1rem; font-weight: 600;
+            background: linear-gradient(45deg, var(--accent-color), #f37b90); color: #fff;
+            border: none; border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease;
+        }
+        #join-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4); }
+        #join-btn:active { animation: subtlePop 0.2s ease-out; }
+
+        /* --- 6. Themed Chat Screen --- */
+        #chat-screen { width: 100%; height: 100%; display: none; flex-direction: column; opacity: 0; transition: opacity 0.5s ease 0.3s; }
+        #chat-screen.visible { display: flex; opacity: 1; }
+        .chat-container { display: flex; flex: 1; overflow: hidden; }
+        
+        .user-sidebar { width: 250px; background-color: rgba(15, 17, 23, 0.5); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 1rem; transition: width 0.3s ease; }
+        .user-sidebar h2 { font-size: 1.2rem; color: #fff; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; }
+        #user-list { list-style: none; overflow-y: auto; }
+        #user-list li { padding: 8px 5px; color: var(--light-gray); display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
         #user-list li::before { content: '●'; color: var(--accent-color); font-size: 0.8em; }
         
-        .sidebar-footer { flex-shrink: 0; padding-top: 1rem; margin-top: 1rem; border-top: 1px solid var(--border-color); text-align: center; }
-        .dev-meta .dev-name { font-weight: 600; color: #fff; }
-        .dev-meta .dev-title { font-size: 0.8rem; color: var(--light-gray); margin-bottom: 1rem; }
-        .social-links { display: flex; justify-content: center; gap: 1.5rem; }
-        .social-links a { color: var(--light-gray); transition: all 0.2s ease; }
-        .social-links a:hover { color: var(--accent-color); transform: translateY(-2px); }
-        .social-icon { font-size: 1.5rem; }
-        
-        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .main-chat { flex: 1; display: flex; flex-direction: column; }
         #messages { list-style-type: none; padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
-        #scroll-down-btn { position: absolute; bottom: 80px; right: 25px; width: 45px; height: 45px; background-color: var(--accent-color); color: #fff; border: none; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 10; }
-        #scroll-down-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-
-        .message { position: relative; display: flex; flex-direction: column; max-width: 80%; animation: slideUpFadeIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); transition: opacity 0.3s ease, transform 0.3s ease; }
-        .message.deleting { opacity: 0; transform: scale(0.9); }
-        .message-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
-        .message .username { font-size: 0.9rem; font-weight: 600; }
-        .message .timestamp { font-size: 0.75rem; color: var(--light-gray); }
-        .message .content { padding: 10px 15px; border-radius: var(--border-radius); line-height: 1.4; word-break: break-word; }
-        .message .content a { font-weight: 600; text-decoration: underline; transition: color 0.2s ease; }
-        .message.other .content a { color: var(--accent-color); } .message.other .content a:hover { color: #fff; }
-        .message.mine .content a { color: var(--link-blue-color); } .message.mine .content a:hover { color: #fff; }
-
-        .delete-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--light-gray); cursor: pointer; opacity: 0; transition: opacity 0.2s ease; font-size: 0.8rem; }
-        .message:hover .delete-btn { opacity: 0.5; }
-        .delete-btn:hover { opacity: 1; color: var(--accent-color); }
-        .message.mine .delete-btn { left: -25px; }
         
-        .message.other { align-self: flex-start; } .message.other .content { background-color: var(--secondary-color); }
-        .message.mine { align-self: flex-end; } .message.mine .message-header { flex-direction: row-reverse; } .message.mine .content { background-color: var(--accent-color); color: #fff; }
-        .message.system { align-self: center; text-align: center; color: var(--light-gray); font-style: italic; font-size: 0.9rem; padding: 5px 0; max-width: 100%; }
+        .message { display: flex; flex-direction: column; max-width: 75%; animation: slideUpFadeIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        .message .content { padding: 10px 15px; border-radius: 18px; line-height: 1.4; word-break: break-word; }
+        .message .username { font-size: 0.9rem; font-weight: 600; margin-bottom: 5px; }
         
-        .message-form { display: flex; padding: 1rem; border-top: 1px solid var(--border-color); background-color: var(--bg-color); flex-shrink: 0; align-items: flex-end; gap: 10px; }
-        #message-input { flex: 1; padding: 15px; font-size: 1rem; background: var(--secondary-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); transition: all 0.3s ease; resize: none; overflow-y: auto; max-height: 120px; font-family: 'Poppins', sans-serif; }
+        .message.other { align-self: flex-start; }
+        .message.other .username { color: var(--accent-color); }
+        .message.other .content { background-color: var(--secondary-color); border-bottom-left-radius: 4px; }
+        
+        .message.mine { align-self: flex-end; }
+        .message.mine .username { display: none; } /* Hide own username */
+        .message.mine .content { background-color: var(--accent-color); color: #fff; border-bottom-right-radius: 4px; }
+        
+        .message.system { align-self: center; color: var(--light-gray); font-style: italic; font-size: 0.9rem; padding: 5px 0; max-width: 100%; text-align: center; }
+        
+        .message-form { display: flex; padding: 1rem; border-top: 1px solid var(--border-color); background-color: var(--bg-color); }
+        #message-input { flex: 1; padding: 15px; font-size: 1rem; background: var(--secondary-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); color: var(--font-color); transition: all 0.3s ease; }
         #message-input:focus { outline: none; border-color: var(--accent-color); }
-        #send-btn { height: 53px; padding: 0 25px; font-weight: 600; border: none; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.2s; display: flex; justify-content: center; align-items: center; font-size: 1rem; background: var(--accent-color); color: #fff; }
+        #send-btn { padding: 15px 30px; margin-left: 10px; font-weight: 600; background: var(--accent-color); color: #fff; border: none; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.2s; }
+        #send-btn:hover { background: #d83a56; }
+        #send-btn:active { animation: subtlePop 0.2s ease-out; }
 
-        @media (min-width: 768px) {
-            #chat-screen { flex-direction: row; }
-            .chat-header { display: none; }
-            .user-sidebar { position: static; transform: translateX(0) rotateY(0); } /* Desktop state */
-            #sidebar-overlay { display: none; }
-            #scroll-down-btn { right: 40px; }
-            .message.mine .delete-btn { left: auto; right: -25px; }
-        }
+        @media (max-width: 768px) { .user-sidebar { display: none; } }
     </style>
 </head>
 <body>
+    <canvas id="live-background"></canvas>
+    <div class="watermark">Calyx Drey Dev</div>
 
-    <div class="app-wrapper">
-        <div id="login-screen">
-            <h1>Calyx Dev Live Chat</h1>
-            <form id="login-form">
-                <input type="text" id="username-input" placeholder="Choose a username..." required autocomplete="off">
-                <p id="login-error"></p>
-                <button id="join-btn" type="submit">Join Chat</button>
-            </form>
-        </div>
-
-        <div id="chat-screen">
-            <div class="user-sidebar" id="user-sidebar">
-                <h2>Online Users</h2>
-                <ul id="user-list"></ul>
-                <div class="sidebar-footer">
-                    <div class="dev-meta"><p class="dev-name">Calyx-Drey</p><p class="dev-title">Developer</p></div>
-                    <div class="social-links">
-                        <a href="#" target="_blank" title="YouTube"><i class="fa-brands fa-youtube social-icon"></i></a>
-                        <a href="#" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp social-icon"></i></a>
-                        <a href="#" target="_blank" title="Telegram"><i class="fa-brands fa-telegram social-icon"></i></a>
+    <div class="page-wrapper">
+        <div class="app-container">
+            <div id="login-screen">
+                <h1>Calyx Dev Live Chat</h1>
+                <form id="login-form">
+                    <input type="text" id="username-input" placeholder="Choose a username..." required autocomplete="off">
+                    <button id="join-btn" type="submit">Join Chat</button>
+                </form>
+            </div>
+    
+            <div id="chat-screen">
+                <div class="chat-container">
+                    <div class="user-sidebar">
+                        <h2>Online Users</h2>
+                        <ul id="user-list"></ul>
+                    </div>
+                    <div class="main-chat">
+                        <ul id="messages"></ul>
+                        <form class="message-form" id="message-form">
+                            <input id="message-input" autocomplete="off" placeholder="Type a message..." />
+                            <button id="send-btn">Send</button>
+                        </form>
                     </div>
                 </div>
             </div>
-            <div id="sidebar-overlay"></div>
-            <div class="main-chat">
-                <header class="chat-header">
-                     <button id="toggle-users-btn" title="Toggle user list">
-                        <svg class="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
-                        <svg class="icon-close" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-                     </button>
-                    <h1>Calyx Dev Live Chat</h1><div></div>
-                </header>
-                <ul id="messages"></ul>
-                <button id="scroll-down-btn" title="Scroll to bottom"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4h2v12l5.5-5.5 1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5 11 16V4z"></path></svg></button>
-                <form class="message-form" id="message-form">
-                    <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
-                    <button id="send-btn" type="submit" title="Send Message">Send</button>
-                </form>
-            </div>
         </div>
     </div>
-    
+
+
+    <!-- This script is served automatically by the Socket.IO server -->
     <script src="/socket.io/socket.io.js"></script>
+    
     <script>
+        // --- LIVE BACKGROUND SCRIPT ---
+        const canvas = document.getElementById('live-background'); const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        let particlesArray;
+        const mouse = { x: null, y: null, radius: (canvas.height / 100) * (canvas.width / 100) };
+        window.addEventListener('mousemove', (event) => { mouse.x = event.x; mouse.y = event.y; });
+        window.addEventListener('mouseout', () => { mouse.x = undefined; mouse.y = undefined; });
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; mouse.radius = (canvas.height / 100) * (canvas.width / 100); initParticles(); });
+        class Particle { constructor(x, y, dX, dY, s, c) { this.x = x; this.y = y; this.directionX = dX; this.directionY = dY; this.size = s; this.color = c; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false); ctx.fillStyle = this.color; ctx.fill(); } update() { if (this.x > canvas.width || this.x < 0) { this.directionX = -this.directionX; } if (this.y > canvas.height || this.y < 0) { this.directionY = -this.directionY; } let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.sqrt(dx * dx + dy * dy); if (distance < mouse.radius + this.size) { if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 3; if (mouse.x > this.x && this.x > this.size * 10) this.x -= 3; if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 3; if (mouse.y > this.y && this.y > this.size * 10) this.y -= 3; } this.x += this.directionX; this.y += this.directionY; this.draw(); } }
+        function initParticles() { particlesArray = []; let num = (canvas.height * canvas.width) / 9000; for (let i = 0; i < num; i++) { let s = (Math.random() * 2) + 1; let x = (Math.random() * ((innerWidth - s * 2) - (s * 2)) + s * 2); let y = (Math.random() * ((innerHeight - s * 2) - (s * 2)) + s * 2); let dX = (Math.random() * 0.2) - 0.1; let dY = (Math.random() * 0.2) - 0.1; let c = 'rgba(233, 69, 96, 0.5)'; particlesArray.push(new Particle(x, y, dX, dY, s, c)); } }
+        function connect() { let opacityValue = 1; for (let a = 0; a < particlesArray.length; a++) { for (let b = a; b < particlesArray.length; b++) { let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y)); if (distance < (canvas.width / 7) * (canvas.height / 7)) { opacityValue = 1 - (distance / 20000); ctx.strokeStyle = 'rgba(233, 69, 96,' + opacityValue + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(particlesArray[a].x, particlesArray[a].y); ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke(); } } } }
+        function animateParticles() { requestAnimationFrame(animateParticles); ctx.clearRect(0, 0, innerWidth, innerHeight); for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); } connect(); }
+        initParticles(); animateParticles();
+
+        // --- LIVE CHAT SCRIPT ---
         document.addEventListener('DOMContentLoaded', () => {
             const socket = io();
-
-            const loginScreen = document.getElementById('login-screen'), chatScreen = document.getElementById('chat-screen'),
-                  loginForm = document.getElementById('login-form'), usernameInput = document.getElementById('username-input'),
-                  loginError = document.getElementById('login-error'), messageForm = document.getElementById('message-form'),
-                  messageInput = document.getElementById('message-input'), messagesList = document.getElementById('messages'),
-                  userList = document.getElementById('user-list'), userSidebar = document.getElementById('user-sidebar'),
-                  toggleUsersBtn = document.getElementById('toggle-users-btn'), sidebarOverlay = document.getElementById('sidebar-overlay'),
-                  scrollDownBtn = document.getElementById('scroll-down-btn');
-
+            const loginScreen = document.getElementById('login-screen'); const chatScreen = document.getElementById('chat-screen'); const loginForm = document.getElementById('login-form'); const usernameInput = document.getElementById('username-input'); const messageForm = document.getElementById('message-form'); const messageInput = document.getElementById('message-input'); const messagesList = document.getElementById('messages'); const userList = document.getElementById('user-list');
             let myUsername = '';
-
+            
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                loginError.style.display = 'none';
                 const username = usernameInput.value.trim();
-                if (username) { myUsername = username; socket.emit('join', username); }
+                if (username) {
+                    myUsername = username;
+                    socket.emit('join', username);
+                    loginScreen.classList.add('hidden');
+                    // Use setTimeout to allow the CSS transition to finish before changing display property
+                    setTimeout(() => {
+                        loginScreen.style.display = 'none';
+                        chatScreen.classList.add('visible');
+                        messageInput.focus();
+                    }, 500);
+                }
             });
-
+            
             messageForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const msg = messageInput.value.trim();
-                if (msg) { socket.emit('chat message', msg); messageInput.value = ''; messageInput.style.height = 'auto'; }
+                if (msg) {
+                    socket.emit('chat message', msg);
+                    messageInput.value = '';
+                }
             });
 
-            const toggleSidebar = () => { chatScreen.classList.toggle('sidebar-active'); };
-            toggleUsersBtn.addEventListener('click', toggleSidebar);
-            sidebarOverlay.addEventListener('click', toggleSidebar);
-            
-            messageInput.addEventListener('input', () => {
-                messageInput.style.height = 'auto';
-                messageInput.style.height = (messageInput.scrollHeight) + 'px';
-            });
-
-            const formatTimestamp = (dateString) => new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const linkify = (text) => {
-                const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\bwww\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/ig;
-                const tempDiv = document.createElement('div');
-                tempDiv.textContent = text;
-                return tempDiv.innerHTML.replace(urlRegex, (url) => {
-                    let fullUrl = url;
-                    if (!fullUrl.startsWith('http') && !fullUrl.includes('@')) { fullUrl = 'https://' + fullUrl; } 
-                    else if (fullUrl.includes('@')) { fullUrl = 'mailto:' + fullUrl; }
-                    return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-                });
-            };
-
-            const addMessage = (data) => {
-                const scrollBuffer = 100;
-                const isScrolledToBottom = messagesList.scrollHeight - messagesList.clientHeight <= messagesList.scrollTop + scrollBuffer;
-                
+            const addMessage = (data, type) => {
                 const item = document.createElement('li');
-                item.classList.add('message');
-                item.dataset.messageId = data.id;
-                const timestamp = formatTimestamp(data.timestamp);
-
-                if (data.type === 'system') {
-                    item.classList.add('system');
-                    item.innerHTML = `<span>${data.msg}</span>`;
+                item.classList.add('message', type);
+                if (type === 'system') {
+                    item.textContent = data;
                 } else {
-                    const type = (data.username === myUsername) ? 'mine' : 'other';
-                    item.classList.add(type);
-                    
-                    const headerDiv = document.createElement('div');
-                    headerDiv.className = 'message-header';
-                    headerDiv.innerHTML = `<div class="username">${data.username}</div><div class="timestamp">${timestamp}</div>`;
-                    
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'content';
-                    contentDiv.innerHTML = linkify(data.msg);
-
-                    item.appendChild(headerDiv);
-                    item.appendChild(contentDiv);
-                    
-                    if (type === 'mine') {
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'delete-btn';
-                        deleteBtn.title = 'Delete Message';
-                        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-                        item.appendChild(deleteBtn);
-                    }
+                    const safeUsername = document.createElement('div');
+                    safeUsername.className = 'username';
+                    safeUsername.textContent = data.username;
+                    const safeContent = document.createElement('div');
+                    safeContent.className = 'content';
+                    safeContent.textContent = data.msg;
+                    item.appendChild(safeUsername);
+                    item.appendChild(safeContent);
                 }
-                
                 messagesList.appendChild(item);
-                if (isScrolledToBottom) { messagesList.scrollTop = messagesList.scrollHeight; }
+                messagesList.scrollTop = messagesList.scrollHeight;
             };
             
-            messagesList.addEventListener('click', (e) => {
-                const deleteBtn = e.target.closest('.delete-btn');
-                if (deleteBtn) {
-                    const messageElement = deleteBtn.closest('.message');
-                    const messageId = parseFloat(messageElement.dataset.messageId);
-                    if (messageId) { socket.emit('delete message', messageId); }
-                }
+            socket.on('chat message', (data) => {
+                const type = (data.username === myUsername) ? 'mine' : 'other';
+                addMessage(data, type);
             });
             
-            messagesList.addEventListener('scroll', () => {
-                const scrollBuffer = 10;
-                if (messagesList.scrollHeight - messagesList.clientHeight > messagesList.scrollTop + scrollBuffer) {
-                    scrollDownBtn.classList.add('visible');
-                } else {
-                    scrollDownBtn.classList.remove('visible');
-                }
-            });
-            scrollDownBtn.addEventListener('click', () => {
-                messagesList.scrollTo({ top: messagesList.scrollHeight, behavior: 'smooth' });
+            socket.on('system message', (msg) => {
+                addMessage(msg, 'system');
             });
             
-            socket.on('join success', () => {
-                loginScreen.classList.add('hidden');
-                setTimeout(() => { loginScreen.style.display = 'none'; chatScreen.classList.add('visible'); }, 500);
-            });
-            socket.on('join error', (errorMessage) => { loginError.textContent = errorMessage; loginError.style.display = 'block'; });
-            socket.on('load history', (history) => { history.forEach(data => addMessage(data)); messagesList.scrollTop = messagesList.scrollHeight; });
-            socket.on('chat message', (data) => addMessage(data));
-            socket.on('system message', (data) => addMessage(data));
             socket.on('update users', (users) => {
                 userList.innerHTML = '';
-                users.forEach(user => { const item = document.createElement('li'); item.textContent = user; userList.appendChild(item); });
-            });
-            socket.on('message deleted', (messageId) => {
-                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                if (messageElement) {
-                    messageElement.classList.add('deleting');
-                    setTimeout(() => messageElement.remove(), 300);
-                }
+                users.forEach(user => {
+                    const item = document.createElement('li');
+                    item.textContent = user;
+                    userList.appendChild(item);
+                });
             });
         });
     </script>
