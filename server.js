@@ -1,99 +1,74 @@
 // server.js
 const express = require('express');
 const http = require('http');
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid'); // To give each message a unique ID
 
-const app = express();
+const app =express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = process.env.PORT || 3000;
+// Store users and message history
+const users = {};
+const messageHistory = [];
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname))); // Serve the index.html file
 
-let users = {};
-let messageHistory = [];
-const HISTORY_LIMIT = 50;
-
-const addMessageToHistory = (messageObject) => {
-    messageHistory.push(messageObject);
-    if (messageHistory.length > HISTORY_LIMIT) {
-        messageHistory.shift();
-    }
-};
-
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
-    socket.on('join', (username) => {
-        if (Object.values(users).includes(username)) {
-            socket.emit('join error', 'This username is already taken. Please choose another.');
-            return;
-        }
-
-        users[socket.id] = username;
-        socket.username = username;
-        
-        socket.emit('join success');
-        socket.emit('load history', messageHistory);
-        
-        const systemMessage = {
-            id: Date.now() + Math.random(), // Give system messages a unique ID too
-            type: 'system',
-            msg: `${username} has joined the chat.`,
-            timestamp: new Date()
-        };
-        addMessageToHistory(systemMessage);
-        socket.broadcast.emit('system message', systemMessage);
-        
-        io.emit('update users', Object.values(users));
-    });
-
-    socket.on('chat message', (msg) => {
-        const messageObject = {
-            id: Date.now() + Math.random(), // Unique ID for each message
-            senderSocketId: socket.id, // Store sender's ID for deletion check
-            username: socket.username,
-            msg: msg,
-            timestamp: new Date()
-        };
-        addMessageToHistory(messageObject);
-        io.emit('chat message', messageObject);
-    });
-
-    // --- NEW: Handle message deletion ---
-    socket.on('delete message', (messageId) => {
-        const messageIndex = messageHistory.findIndex(msg => msg.id === messageId);
-
-        if (messageIndex !== -1) {
-            // Authorization check: Only the original sender can delete
-            if (messageHistory[messageIndex].senderSocketId === socket.id) {
-                messageHistory.splice(messageIndex, 1); // Remove from history
-                io.emit('message deleted', messageId); // Notify all clients to remove it
-            }
-        }
-    });
-
-    socket.on('disconnect', () => {
-        console.log('A user disconnected:', socket.id);
-        if (users[socket.id]) {
-            const username = users[socket.id];
-            delete users[socket.id];
-            
-            const systemMessage = {
-                id: Date.now() + Math.random(),
-                type: 'system',
-                msg: `${username} has left the chat.`,
-                timestamp: new Date()
-            };
-            addMessageToHistory(systemMessage);
-            socket.broadcast.emit('system message', systemMessage);
-
-            io.emit('update users', Object.values(users));
-        }
-    });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('join', (username) => {
+    socket.username = username;
+    users[socket.id] = username;
+    
+    // Send history to new user
+    socket.emit('chat history', messageHistory);
+
+    // Notify others and update user list
+    socket.broadcast.emit('system message', `${username} has joined the chat.`);
+    io.emit('update users', Object.values(users));
+  });
+
+  socket.on('chat message', (msg) => {
+    const messageData = {
+        id: uuidv4(), // Give each message a unique ID
+        username: socket.username,
+        msg: msg
+    };
+    messageHistory.push(messageData);
+    if(messageHistory.length > 100) messageHistory.shift(); // Keep history to 100 messages
+
+    io.emit('chat message', messageData);
+  });
+  
+  // Handle message deletion
+  socket.on('delete message', (messageId) => {
+      const messageIndex = messageHistory.findIndex(msg => msg.id === messageId);
+      if (messageIndex > -1) {
+          // Security check: only the sender can delete
+          if (messageHistory[messageIndex].username === socket.username) {
+              messageHistory.splice(messageIndex, 1);
+              io.emit('message deleted', messageId); // Notify all clients
+          }
+      }
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.username) {
+      io.emit('system message', `${socket.username} has left the chat.`);
+      delete users[socket.id];
+      io.emit('update users', Object.values(users));
+    }
+    console.log('User disconnected');
+  });
+});
+
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server listening on *:${PORT}`);
 });
