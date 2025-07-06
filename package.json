@@ -1,10 +1,12 @@
+// package.json
+
 {
   "name": "calyx-live-chat",
   "version": "1.0.0",
   "description": "A real-time chat application with the Calyx Drey Dev theme.",
-  "main": "server.js",
+  "main": "src/server.js",     // <-- IMPORTANT CHANGE
   "scripts": {
-    "start": "node server.js",
+    "start": "node src/server.js", // <-- IMPORTANT CHANGE
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Calyx-Drey",
