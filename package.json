@@ -1,15 +1,17 @@
 {
-  "name": "calyx-dev-live-chat",
+  "name": "calyx-live-chat",
   "version": "1.0.0",
-  "description": "A cool, real-time chat application.",
+  "description": "A real-time chat application with the Calyx Drey Dev theme.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Calyx-Drey",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "uuid": "^9.0.1"
   }
 }
